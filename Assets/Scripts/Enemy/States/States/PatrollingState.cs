@@ -7,8 +7,6 @@ namespace StatePattern.Enemy
     public class PatrollingState : IState
     {
         public EnemyController Owner { get; set; }
-        OnePunchManController IState.Owner { get => throw new System.NotImplementedException(); set => Owner = value; }
-
         private IStateMachine stateMachine;
         private int currentPatrollingIndex = -1;
         private Vector3 destination;
