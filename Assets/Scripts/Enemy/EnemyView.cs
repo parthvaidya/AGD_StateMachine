@@ -1,6 +1,8 @@
 ﻿using StatePattern.Main;
 using StatePattern.Player;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,10 +13,11 @@ namespace StatePattern.Enemy
         public EnemyController Controller { get; private set; }
         [SerializeField] public NavMeshAgent Agent;
         private SphereCollider rangeTriggerCollider;
+        [SerializeField] private SpriteRenderer enemyGraphic;
         [SerializeField] private SpriteRenderer detectableRange;
         [SerializeField] private ParticleSystem muzzleFlash;
+        [SerializeField] private List<EnemyColor> enemyColors;
         [SerializeField] private GameObject bloodStain;
-        [SerializeField] private SpriteRenderer enemyGraphic;
 
         private void Start()
         {
@@ -56,8 +59,24 @@ namespace StatePattern.Enemy
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.GetComponent<PlayerView>() != null && !other.isTrigger)
-                Controller.PlayerEnteredRange(other.GetComponent<PlayerView>().Controller);
+            Debug.Log($"EnemyView: OnTriggerEnter called with {other.gameObject.name}");
+
+            var playerView = other.GetComponent<PlayerView>();
+            if (playerView != null && !other.isTrigger)
+            {
+                if (Controller == null)
+                {
+                    Debug.LogError("EnemyView: Controller is NULL in OnTriggerEnter!");
+                    return;
+                }
+
+                Debug.Log($"EnemyView: Player entered range - {playerView.name}");
+                Controller.PlayerEnteredRange(playerView.Controller);
+            }
+            else
+            {
+                Debug.Log("EnemyView: Triggered by a non-player or a trigger collider.");
+            }
         }
 
         private void OnTriggerExit(Collider other)
@@ -82,5 +101,30 @@ namespace StatePattern.Enemy
             Destroy(gameObject);
         }
 
+        public void ChangeColor(EnemyColorType colorType) => enemyGraphic.color = enemyColors.Find(item => item.Type == colorType).Color;
+
+        public void SetDefaultColor(EnemyColorType colorType)
+        {
+            EnemyColor coloToSetAsDefault = new EnemyColor();
+            coloToSetAsDefault.Type = EnemyColorType.Default;
+            coloToSetAsDefault.Color = enemyColors.Find(item => item.Type == colorType).Color;
+
+            enemyColors.Remove(enemyColors.Find(item => item.Type == EnemyColorType.Default));
+            enemyColors.Add(coloToSetAsDefault);
+        }
+    }
+
+    [System.Serializable]
+    public struct EnemyColor
+    {
+        public EnemyColorType Type;
+        public Color Color;
+    }
+
+    public enum EnemyColorType
+    {
+        Default,
+        Vulnerable,
+        Clone
     }
 }

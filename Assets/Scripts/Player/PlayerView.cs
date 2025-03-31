@@ -26,11 +26,11 @@ namespace StatePattern.Player
 
         private void OnTriggerEnter(Collider other)
         {
-            if(other.GetComponent<EnemyView>() != null && !other.isTrigger)
+            if (other.GetComponent<EnemyView>() != null && !other.isTrigger)
             {
                 var enemyController = other.GetComponent<EnemyView>().Controller;
                 Controller.AddEnemy(enemyController);
-                enemyController.ToggleEnemyColor(true);
+                enemyController.ToggleEnemyColor(EnemyColorType.Vulnerable);
             }
         }
 
@@ -40,7 +40,7 @@ namespace StatePattern.Player
             {
                 var enemyController = other.GetComponent<EnemyView>().Controller;
                 Controller.RemoveEnemy(enemyController);
-                enemyController.ToggleEnemyColor(false);
+                enemyController.ToggleEnemyColor(EnemyColorType.Default);
             }
         }
     }
