@@ -41,7 +41,7 @@ namespace StatePattern.Enemy
             SetEnemyCount();
             UnsubscribeToEvents();
         }
-
+        public void AddEnemy(EnemyController enemy) => activeEnemies.Add(enemy);
         private void SetEnemyCount()
         {
             spawnedEnemies = activeEnemies.Count;
@@ -62,6 +62,9 @@ namespace StatePattern.Enemy
                     break;
                 case EnemyType.Hitman:
                     enemy = new HitmanController(enemyScriptableObject);
+                    break;
+                case EnemyType.CloneMan:
+                    enemy = new CloneManController(enemyScriptableObject);
                     break;
                 default:
                     enemy = new EnemyController(enemyScriptableObject);
