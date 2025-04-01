@@ -13,10 +13,10 @@ namespace StatePattern.Enemy
 
         protected int currentHealth;
         protected EnemyState currentState;
-        protected NavMeshAgent Agent => enemyView.Agent;
-        protected EnemyScriptableObject Data => enemyScriptableObject;
-        protected Quaternion Rotation => enemyView.transform.rotation;
-        protected Vector3 Position => enemyView.transform.position;
+        public NavMeshAgent Agent => enemyView.Agent;
+        public EnemyScriptableObject Data => enemyScriptableObject;
+        public Quaternion Rotation => enemyView.transform.rotation;
+        public Vector3 Position => enemyView.transform.position;
 
 
         public EnemyController(EnemyScriptableObject enemyScriptableObject)
@@ -26,12 +26,30 @@ namespace StatePattern.Enemy
             InitializeVariables();
         }
 
+        //private void InitializeView()
+        //{
+        //    enemyView = Object.Instantiate(enemyScriptableObject.EnemyPrefab);
+        //    enemyView.transform.position = enemyScriptableObject.SpawnPosition;
+        //    enemyView.transform.rotation = Quaternion.Euler(enemyScriptableObject.SpawnRotation);
+        //    enemyView.SetTriggerRadius(enemyScriptableObject.RangeRadius);
+        //}
+
         private void InitializeView()
         {
             enemyView = Object.Instantiate(enemyScriptableObject.EnemyPrefab);
+            if (enemyView == null)
+            {
+                Debug.LogError("EnemyController: Failed to instantiate EnemyView");
+                return;
+            }
+            //enemyView.SetController(this); // Ensure Controller is set
             enemyView.transform.position = enemyScriptableObject.SpawnPosition;
             enemyView.transform.rotation = Quaternion.Euler(enemyScriptableObject.SpawnRotation);
             enemyView.SetTriggerRadius(enemyScriptableObject.RangeRadius);
+
+            Debug.Log($"EnemyController: EnemyView initialized at {enemyView.transform.position} with rotation {enemyView.transform.rotation}.");
+
+
         }
 
         private void InitializeVariables()
@@ -47,7 +65,7 @@ namespace StatePattern.Enemy
             Agent.speed = enemyScriptableObject.MovementSpeed;
         }
 
-        public virtual void Die() 
+        public virtual void Die()
         {
             GameService.Instance.EnemyService.EnemyDied(this);
             enemyView.Destroy();
@@ -61,10 +79,9 @@ namespace StatePattern.Enemy
 
         public void SetRotation(Quaternion desiredRotation) => enemyView.transform.rotation = desiredRotation;
 
-        public void ToggleEnemyColor(bool value)=>  enemyView.ToggleColor(value);
-        
+        public void ToggleEnemyColor(EnemyColorType colorToSet) => enemyView.ChangeColor(colorToSet);
 
-        public void Shoot()
+        public virtual void Shoot()
         {
             enemyView.PlayShootingEffect();
             GameService.Instance.SoundService.PlaySoundEffects(Sound.SoundType.ENEMY_SHOOT);
